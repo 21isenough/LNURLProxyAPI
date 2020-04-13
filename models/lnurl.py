@@ -1,4 +1,5 @@
 from database import db
+from bech32 import bech32_decode
 import lnurl
 import config
 
@@ -34,8 +35,8 @@ class LnurlModel(db.Model):
             config.protocol + config.domain + config.path_prefix + self.uuid
         )
         self.k1 = "".join(choice(hex_characters) for _ in range(64))
-        self.max_withdrawable = amount
-        self.min_withdrawable = amount
+        self.max_withdrawable = amount * 1000
+        self.min_withdrawable = amount * 1000
         self.tag = "withdrawRequest"
         self.default_description = "LightningATM LNURL Withdraw"
         self.create_date = datetime.now()
@@ -43,19 +44,23 @@ class LnurlModel(db.Model):
     def lnurl_bech32(self):
         return lnurl.encode(self.lnurl_string)
 
-    def json(self):
-        return {
-            "uuid": self.uuid,
-            "amount": self.amount,
-            "lnurl_string": self.lnurl_string,
-            "lnurl": self.lnurl,
-            "k1": self.k1,
-            "max_withdrawable": self.max_withdrawable,
-            "min_withdrawable": self.min_withdrawable,
-            "tag": self.tag,
-            "default_description": self.default_description,
-            "create_date": self.create_date.isoformat(),
-        }
+    def lnurl_withdraw_response(self):
+        response = lnurl.LnurlWithdrawResponse(
+            callback=self.lnurl_string + "/withdraw",
+            k1=self.k1,
+            min_withdrawable=self.max_withdrawable,
+            max_withdrawable=self.min_withdrawable,
+            default_description=self.default_description,
+        )
+        return response
+
+    def validate_invoice(self):
+        hrp, data = bech32_decode(self.invoice_bech32)
+        return hrp and data
+
+    @classmethod
+    def find_by_uuid(cls, uuid):
+        return cls.query.filter_by(uuid=uuid).first()
 
     def save_to_db(self):
         db.session.add(self)

@@ -1,6 +1,7 @@
 import os, time, datetime
 
 from flask_restful import Resource, reqparse
+from flask import Response, request
 from models.lnurl import LnurlModel
 
 
@@ -48,15 +49,27 @@ class LnurlAwait(Resource):
 
 class LnurlRequest(Resource):
     def get(self, uuid):
-        print(uuid)
-        return {"status": "OK"}, 200
+        db_entry = LnurlModel.find_by_uuid(uuid)
+        if db_entry:
+            response = LnurlModel.lnurl_withdraw_response(db_entry)
+            return response.dict()
+        return {"status": "ERROR", "reason": "Lnurl not found"}, 404
 
 
 class LnurlWithdraw(Resource):
     def get(self, uuid):
+        db_entry = LnurlModel.find_by_uuid(uuid)
+        if not db_entry:
+            return {"status": "ERROR", "reason": "Lnurl not found."}, 404
+
         k1 = request.args.get("k1")
         invoice = request.args.get("pr")
-        print(k1, invoice, uuid)
-        with open("data.txt", "w+") as file:
-            file.write(invoice)
-        return {"status": "OK"}, 200
+
+        if k1 != db_entry.k1:
+            return {"status": "ERROR", "reason": "K1 not found"}, 404
+
+        db_entry.invoice_bech32 = invoice
+        if db_entry.validate_invoice():
+            db_entry.save_to_db()
+            return {"status": "OK"}, 200
+        return {"status": "ERROR", "reason": "Invalid lightning invoice"}, 400
