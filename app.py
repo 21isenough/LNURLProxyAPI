@@ -4,7 +4,7 @@ from flask import Flask, request
 from flask_restful import Api
 from database import db
 
-import resources.lnurl
+from resources.lnurl import LnurlCreate
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -17,13 +17,6 @@ api = Api(app)
 @app.before_first_request
 def create_tables():
     db.create_all()
-
-
-@app.route("/v1/lnurl", methods=["POST"])
-def home():
-    request_data = request.get_json()
-    print(request_data)
-    return {"lnurl": "lnbcsomelnurl...", "callback": "https://somecallbackurl"}, 201
 
 
 @app.route("/v1/lnurl/<string:uuid>/await-invoice")
@@ -54,5 +47,8 @@ def home4(uuid):
     return {"status": "OK"}, 200
 
 
+api.add_resource(LnurlCreate, "/v1/lnurl")
+
 if __name__ == "__main__":
+    db.init_app(app)
     app.run(debug=True)
