@@ -1,5 +1,9 @@
 from database import db
 
+from datetime import datetime
+from random import choice
+from uuid import uuid4
+
 
 class LnurlModel(db.Model):
 
@@ -23,7 +27,22 @@ class LnurlModel(db.Model):
     invoice_bech32 = db.Column(db.String(500))
     create_date = db.Column(db.DateTime)
 
-    def __init__(self, uuid, amount, lnurl):
-        self.uuid = uuid
+    def __init__(self, amount):
+        hex_characters = "0123456789abcdef"
+
+        self.uuid = str(uuid4())
         self.amount = amount
-        self.lnurl = lnurl
+        self.lnurl = "lnurl007test"
+        self.k1 = "".join(choice(hex_characters) for _ in range(64))
+        self.max_withdrawable = amount
+        self.min_withdrawable = amount
+        self.tag = "withdrawRequest"
+        self.default_description = "LightningATM LNURL Withdraw"
+        self.create_date = datetime.now()
+
+    def json(self):
+        return {"uuid": self.uuid, "amount": self.amount, "lnurl": self.lnurl}
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
