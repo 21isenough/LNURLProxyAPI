@@ -23,28 +23,18 @@ class LnurlCreate(Resource):
         try:
             lnurl.save_to_db()
         except:
-            return {"message": "An error occured inserting the lnurl"}, 500
+            return {"message": "An error occured inserting into the database"}, 500
 
-        return (
-            {
-                "lnurl": lnurl.lnurl_bech32(),
-                "callback": callback_url,
-                "uuid": lnurl.uuid,
-            },
-            201,
-        )
+        return {"lnurl": lnurl.lnurl_bech32(), "callback": callback_url}, 201
 
 
 class LnurlAwait(Resource):
     def get(self, uuid):
-        print(uuid)
-        request_time = time.time()
-        while not (os.stat("data.txt").st_mtime > request_time):
-            time.sleep(0.5)
-        content = ""
-        with open("data.txt") as data:
-            content = data.read()
-        return {"content": content}
+        invoice = ""
+        while not invoice:
+            invoice = LnurlModel.find_by_uuid(uuid).invoice_bech32
+            time.sleep(1)
+        return {"invoice": invoice}
 
 
 class LnurlRequest(Resource):
@@ -70,6 +60,9 @@ class LnurlWithdraw(Resource):
 
         db_entry.invoice_bech32 = invoice
         if db_entry.validate_invoice():
-            db_entry.save_to_db()
+            try:
+                db_entry.save_to_db()
+            except:
+                {"message": "An error occured inserting into the database"}, 500
             return {"status": "OK"}, 200
         return {"status": "ERROR", "reason": "Invalid lightning invoice"}, 400

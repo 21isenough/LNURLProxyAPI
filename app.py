@@ -1,13 +1,14 @@
 from flask import Flask
 from flask_restful import Api
 from database import db
+import config
 
 from resources.lnurl import LnurlCreate, LnurlAwait, LnurlRequest, LnurlWithdraw
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = "Thisisfornowmysecretkey"
+app.secret_key = config.SECRET_KEY
 
 api = Api(app)
 
