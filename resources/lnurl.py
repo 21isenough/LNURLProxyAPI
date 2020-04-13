@@ -17,14 +17,21 @@ class LnurlCreate(Resource):
         data = self.parser.parse_args()
 
         lnurl = LnurlModel(**data)
-        print(lnurl.json())
+        callback_url = lnurl.lnurl_string + "/await-invoice"
 
         try:
             lnurl.save_to_db()
         except:
             return {"message": "An error occured inserting the lnurl"}, 500
 
-        return lnurl.json(), 201
+        return (
+            {
+                "lnurl": lnurl.lnurl_bech32(),
+                "callback": callback_url,
+                "uuid": lnurl.uuid,
+            },
+            201,
+        )
 
 
 class LnurlAwait(Resource):
