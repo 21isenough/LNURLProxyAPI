@@ -1,13 +1,22 @@
-from flask import Flask, request
-from flask_restful import Api
-
 import os, time, datetime
 
-app = Flask(__name__)
+from flask import Flask, request
+from flask_restful import Api
+from database import db
 
+import resources.lnurl
+
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = "Thisisfornowmysecretkey"
 
 api = Api(app)
+
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 
 @app.route("/v1/lnurl", methods=["POST"])
