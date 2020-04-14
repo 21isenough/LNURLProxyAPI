@@ -34,7 +34,7 @@ class LnurlAwait(Resource):
         while not invoice:
             invoice = LnurlModel.find_by_uuid(uuid).invoice_bech32
             time.sleep(1)
-        return {"invoice": invoice}
+        return {"invoice": invoice}, 200
 
 
 class LnurlRequest(Resource):
@@ -42,7 +42,7 @@ class LnurlRequest(Resource):
         db_entry = LnurlModel.find_by_uuid(uuid)
         if db_entry:
             response = LnurlModel.lnurl_withdraw_response(db_entry)
-            return response.dict()
+            return response.dict(), 200
         return {"status": "ERROR", "reason": "Lnurl not found"}, 404
 
 
