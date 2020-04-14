@@ -1,6 +1,6 @@
 # LNURLProxyAPI
 
-![alt text](https://github.com/21isenough/LNURLProxyAPI/blob/master/LNURLProxyAPI.png)
+![alt text](https://github.com/21isenough/LNURLProxyAPI/blob/master/images/LNURLProxyAPI.png)
 
 # LNURLProxyAPI Documentation
 
