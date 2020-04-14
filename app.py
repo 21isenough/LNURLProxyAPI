@@ -10,6 +10,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = config.SECRET_KEY
 
+db.init_app(app)
 api = Api(app)
 
 
@@ -24,5 +25,4 @@ api.add_resource(LnurlRequest, "/v1/lnurl/<string:uuid>")
 api.add_resource(LnurlWithdraw, "/v1/lnurl/<string:uuid>/withdraw")
 
 if __name__ == "__main__":
-    db.init_app(app)
     app.run(debug=True)
