@@ -32,13 +32,17 @@ class LnurlModel(db.Model):
         self.uuid = str(uuid4())
         self.amount = amount
         self.lnurl_string = (
-            config.protocol + config.domain + config.path_prefix + self.uuid
+            config.uriprefix
+            + config.protocol
+            + config.domain
+            + config.path_prefix
+            + self.uuid
         )
         self.k1 = "".join(choice(hex_characters) for _ in range(64))
         self.max_withdrawable = amount * 1000
         self.min_withdrawable = amount * 1000
         self.tag = "withdrawRequest"
-        self.default_description = "LightningATM LNURL Withdraw"
+        self.default_description = "LNURLProxy LNURL Withdraw"
         self.create_date = datetime.now()
 
     def lnurl_bech32(self):
