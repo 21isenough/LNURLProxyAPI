@@ -33,6 +33,10 @@ class LnurlCreate(Resource):
 
 class LnurlAwait(Resource):
     def get(self, uuid):
+        db_entry = LnurlModel.find_by_uuid(uuid)
+        if not db_entry:
+            return {"status": "ERROR", "reason": "Lnurl not found."}, 404
+
         invoice = ""
         while not invoice:
             invoice = LnurlModel.find_by_uuid(uuid).invoice_bech32
