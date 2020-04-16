@@ -32,11 +32,7 @@ class LnurlModel(db.Model):
         self.uuid = str(uuid4())
         self.amount = amount
         self.lnurl_string = (
-            config.uriprefix
-            + config.protocol
-            + config.domain
-            + config.path_prefix
-            + self.uuid
+            config.protocol + config.domain + config.path_prefix + self.uuid
         )
         self.k1 = "".join(choice(hex_characters) for _ in range(64))
         self.max_withdrawable = amount * 1000

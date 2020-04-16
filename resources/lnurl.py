@@ -25,7 +25,10 @@ class LnurlCreate(Resource):
         except:
             return {"message": "An error occured inserting into the database"}, 500
 
-        return {"lnurl": lnurl.lnurl_bech32(), "callback": callback_url}, 201
+        return (
+            {"lnurl": "lightning:" + lnurl.lnurl_bech32(), "callback": callback_url},
+            201,
+        )
 
 
 class LnurlAwait(Resource):
