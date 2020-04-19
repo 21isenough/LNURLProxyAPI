@@ -33,9 +33,9 @@ class LnurlCreate(Resource):
 
 class LnurlAwait(Resource):
     def get(self, uuid):
-        db_entry = LnurlModel.find_by_uuid(uuid)
-        if not db_entry:
-            return {"status": "ERROR", "reason": "Lnurl not found."}, 404
+        # db_entry = LnurlModel.find_by_uuid(uuid)
+        # if not db_entry:
+        #     return {"status": "ERROR", "reason": "Lnurl not found."}, 404
 
         invoice = ""
         while not invoice:
@@ -55,12 +55,12 @@ class LnurlRequest(Resource):
 
 class LnurlWithdraw(Resource):
     def get(self, uuid):
+        k1 = request.args.get("k1")
+        invoice = request.args.get("pr")
+
         db_entry = LnurlModel.find_by_uuid(uuid)
         if not db_entry:
             return {"status": "ERROR", "reason": "Lnurl not found."}, 404
-
-        k1 = request.args.get("k1")
-        invoice = request.args.get("pr")
 
         if k1 != db_entry.k1:
             return {"status": "ERROR", "reason": "K1 not found"}, 404
