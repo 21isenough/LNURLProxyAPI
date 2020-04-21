@@ -60,7 +60,9 @@ class LnurlModel(db.Model):
 
     @classmethod
     def find_by_uuid(cls, uuid):
-        return cls.query.filter_by(uuid=uuid).first()
+        record =  cls.query.filter_by(uuid=uuid).first()
+        db.session.close()
+        return record
 
     def save_to_db(self):
         db.session.add(self)
