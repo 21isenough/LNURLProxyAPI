@@ -17,8 +17,8 @@ def wallet_action():
     response_withdraw = requests.get(res.callback, params=data)
     logger.info(response_withdraw.json())
     logger.info("")
-
     time.sleep(sleep)
+
     # Test wrong UUID
     k1 = res.k1
     pr = "lnbc5u1p0fa0g0pp5z0xnnq63p7fx7vs3t4sx9sapk3lvpeppffy0pursn6fz5m99xr0qdqqcqzpgxqyz5vqsp59kyl2900ggel0e8gr2s3uv4ze5d96aqdm0q597npqn4mlkm0fwes9qy9qsq8s2d96sljuhnu9za7edskaxlmur2rxuzhg4ckyctq970nsplxev8ccdfs9jmw75t79vvxhqpsz3r83xf7qzc9fcss8jxwmkdgxt7kusp0j3dl5"
@@ -35,6 +35,7 @@ def wallet_action():
     ]
     # Test wrong amount, faulty checksum and correct invoice
     for invoice in invoices:
+        time.sleep(sleep)
         k1 = res.k1
         pr = invoice
         data = {"k1": k1, "pr": pr}
