@@ -38,7 +38,7 @@ class LnurlAwait(Resource):
             return {"status": "ERROR", "reason": "Lnurl not found."}, 404
 
         invoice = ""
-        timeout = time.time() + 60
+        timeout = time.time() + 300
 
         while not invoice and (time.time() < timeout):
             invoice = LnurlModel.find_by_uuid(uuid).invoice_bech32
@@ -50,9 +50,9 @@ class LnurlAwait(Resource):
             return (
                 {
                     "status": "ERROR",
-                    "reason": "Request timed out after 60 seconds. Please try again.",
+                    "reason": "Timed out after 300 seconds. Please try again.",
                 },
-                404,
+                504,
             )
 
 
