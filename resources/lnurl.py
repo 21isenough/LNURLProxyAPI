@@ -1,7 +1,7 @@
-import os, time, datetime
+import time
 
 from flask_restful import Resource, reqparse
-from flask import Response, request
+from flask import request
 from models.lnurl import LnurlModel
 
 
@@ -74,14 +74,19 @@ class LnurlWithdraw(Resource):
         if not db_entry:
             return {"status": "ERROR", "reason": "Lnurl not found."}, 404
 
+        if db_entry.invoice_bech32:
+            return {"status": "ERROR", "reason": "Invoice already submitted."}, 404
+
         if k1 != db_entry.k1:
-            return {"status": "ERROR", "reason": "K1 not found"}, 404
+            return {"status": "ERROR", "reason": "K1 does not match."}, 404
 
         db_entry.invoice_bech32 = invoice
-        if db_entry.validate_invoice():
+        result = db_entry.invoice_amount_validation()
+        if result == True:
             try:
                 db_entry.save_to_db()
             except:
-                {"message": "An error occured inserting into the database"}, 500
+                return {"message": "An error occured inserting into the database"}, 500
             return {"status": "OK"}, 200
-        return {"status": "ERROR", "reason": "Invalid lightning invoice"}, 400
+        else:
+            return result

@@ -2,7 +2,9 @@ from database import db
 from bech32 import bech32_decode
 import lnurl
 import config
+import re
 
+from decimal import Decimal
 from datetime import datetime
 from random import choice
 from uuid import uuid4
@@ -54,13 +56,44 @@ class LnurlModel(db.Model):
         )
         return response
 
-    def validate_invoice(self):
+    def invoice_amount_validation(self):
+        # Amount validation by rustyrussell
+        # https://github.com/rustyrussell/lightning-payencode/blob/master/lnaddr.py
         hrp, data = bech32_decode(self.invoice_bech32)
-        return hrp and data
+        if not hrp:
+            return {"status": "ERROR", "reason": "Bad bech32 checksum."}, 400
+
+        if not hrp.startswith("ln"):
+            return {"status": "ERROR", "reason": "Does not start with 'ln'"}, 400
+
+        m = re.search("[^\d]+", hrp[2:])
+        if m:
+            amountstr = hrp[2 + m.end() :]
+            if amountstr != "":
+                units = {
+                    "p": 10 ** 12,
+                    "n": 10 ** 9,
+                    "u": 10 ** 6,
+                    "m": 10 ** 3,
+                }
+                unit = str(amountstr)[-1]
+
+                if not re.fullmatch("\d+[pnum]?", str(amountstr)):
+                    raise ValueError("Invalid amount '{}'".format(amountstr))
+
+                if unit in units.keys():
+                    amount = Decimal(amountstr[:-1]) / units[unit]
+                else:
+                    amount = Decimal(amountstr)
+
+        if amount == Decimal(self.amount) / 10 ** 8:
+            return True
+        else:
+            return {"status": "ERROR", "reason": "Amount does not match"}, 404
 
     @classmethod
     def find_by_uuid(cls, uuid):
-        record =  cls.query.filter_by(uuid=uuid).first()
+        record = cls.query.filter_by(uuid=uuid).first()
         db.session.close()
         return record
 
