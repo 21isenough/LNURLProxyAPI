@@ -5,4 +5,4 @@ idna==2.9
 lnurl==0.3.3
 pydantic==1.5
 requests==2.23.0
-urllib3==1.25.9
+urllib3==1.26.5
